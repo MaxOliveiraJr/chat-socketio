@@ -1,8 +1,9 @@
 const express = require('express');
-const http = require('http');
 const path = require('path');
-const app = express();
 const socketIO = require('socket.io');
+
+
+const app = express();
 
 app.use('/', express.static(path.join(__dirname, 'public')));
 
@@ -10,19 +11,19 @@ const server = app.listen(3000, () => {
     console.log('Runnig port 3000')
 })
 
+const messages = [];
 
-// const server = http.Server(app);
-
-// server.listen(3000, () => {
-//     console.log('Running port 3000')
-// })
 
 const io = socketIO(server);
 
 io.on('connection', (socket) => {
-    socket.emit('hello', { msg: "Seja bem-vindo" });
 
-    socket.on('hello_client_response', (data) => {
-        console.log(data.msg);
+    console.log('New Connection')
+
+    socket.emit('update_messages', messages);
+    socket.on('new_message', (data) => {
+        messages.push(data);
+
+        io.emit('update_messages', messages);
     })
 })
